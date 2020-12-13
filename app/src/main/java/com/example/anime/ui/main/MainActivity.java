@@ -1,92 +1,62 @@
 package com.example.anime.ui.main;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import com.example.anime.R;
+import com.example.anime.ui.main.ui.about.AboutActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.Bundle;
-import android.widget.Toast;
-
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.common.Priority;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.ParsedRequestListener;
-import com.example.anime.BuildConfig;
-import com.example.anime.R;
-import com.example.anime.adapter.AnimeAdapter;
-import com.example.anime.ui.api.ApiEndpoint;
-import com.example.anime.ui.api.model.manga.PopularResponse;
-
-import java.util.List;
+import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
-    @BindView(R.id.rvMovie)
-    RecyclerView rvMovie;
-    private List<PopularResponse.MangaListItem> items;
-    private AnimeAdapter animeAdapter;
-    public static boolean loadMore = true;
-
-    LinearLayoutManager mLayoutManager;
-    private boolean isScrolling = false;
-    int pastVisiblesItems, visibleItemCount, totalItemCount;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        prepare();
-        loadAnime();
-    }
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_home,
+                R.id.navigation_dashboard,
+                R.id.navigation_notifications)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(navView, navController);
 
-    private void prepare() {
-        mLayoutManager= new LinearLayoutManager(this);
-        animeAdapter = new AnimeAdapter();
-        rvMovie.setLayoutManager(new GridLayoutManager(this, 2));
-        rvMovie.setAdapter(animeAdapter);
-        rvMovie.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int lastVisiblePosition = mLayoutManager.findLastVisibleItemPosition();
-                if (lastVisiblePosition==recyclerView.getChildCount()){
-                    if (loadMore){
-                        loadMore = false;
-                        loadAnime();
-                    }
-                }
-            }
-        });
 
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-
-    private void loadAnime() {
-        AndroidNetworking.get(BuildConfig.BASE_URL + ApiEndpoint.POPULAR)
-                .setPriority(Priority.MEDIUM)
-                .setTag(this)
-                .build()
-                .getAsObject(PopularResponse.class, new ParsedRequestListener<PopularResponse>() {
-                    @Override
-                    public void onResponse(PopularResponse response) {
-                        animeAdapter.setMovieList(response.getMangaList());
-                        loadMore=true;
-                    }
-
-                    @Override
-                    public void onError(ANError anError) {
-                        Toast.makeText(MainActivity.this, anError.getErrorBody(), Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.about:
+                Intent intent = new Intent(this,AboutActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
