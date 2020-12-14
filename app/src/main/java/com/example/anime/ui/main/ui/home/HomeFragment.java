@@ -21,7 +21,6 @@ import com.example.anime.R;
 import com.example.anime.adapter.AnimeAdapter;
 import com.example.anime.adapter.SlidingImage_Adapter;
 import com.example.anime.ui.api.model.manga.PopularResponse;
-import com.example.anime.ui.main.ui.about.AboutActivity;
 import com.synnapps.carouselview.CirclePageIndicator;
 
 import java.util.ArrayList;
